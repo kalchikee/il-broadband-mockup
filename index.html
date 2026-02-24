@@ -285,7 +285,7 @@
                 <div class="logo-icon">IL</div>
                 <div>
                     <div class="logo-text">Illinois Broadband Gap Analysis</div>
-                    <div class="logo-subtitle">Rural Broadband Access Gap Analysis Tool</div>
+                    <div class="logo-subtitle">Exploring broadband gaps across Illinois census tracts</div>
                 </div>
             </div>
         </div>
@@ -307,7 +307,7 @@
                     <div class="layer-radio"></div>
                     <div class="layer-info">
                         <h4>Broadband Need Index</h4>
-                        <p>Composite score (0–100)</p>
+                        <p>Combined need score (0–100)</p>
                     </div>
                 </div>
                 <div style="padding: 0 4px 4px;">
@@ -329,7 +329,7 @@
                             <span class="method-label">No internet rate</span>
                             <span class="method-weight">30%</span>
                         </div>
-                        <p style="color:#4a5568;font-size:10px;margin-top:6px;">All components normalized 0–1 before weighting. Higher scores = greater investment need. Source: ACS 5-Year 2024.</p>
+                        <p style="color:#4a5568;font-size:10px;margin-top:6px;">Each component is scaled 0–1 before combining. Higher scores mean more need. Data from ACS 2024.</p>
                     </div>
                 </div>
 
@@ -379,9 +379,9 @@
 
             <!-- Placeholder note for peer reviewers -->
             <div class="panel-section" style="background:#fffbeb;">
-                <div class="section-title" style="color:#b7791f;">Planned Features</div>
+                <div class="section-title" style="color:#b7791f;">Still Working On</div>
                 <p style="font-size:11px;color:#744210;line-height:1.6;">
-                    The final version will include range sliders to filter tracts by minimum coverage, maximum income, and minimum need score. CSV export and print view are also planned.
+                    Plan to add sliders to filter by coverage, income, and need score. Also want to add a CSV export and a cleaner print view.
                 </p>
             </div>
 
@@ -401,7 +401,7 @@
 
             <!-- Summary Stats -->
             <div class="summary-stats">
-                <div class="summary-title">Statewide Summary</div>
+                <div class="summary-title">Illinois Overview</div>
                 <div class="stat-grid">
                     <div class="stat-card">
                         <div class="stat-card-value" id="stat-tracts">--</div>
@@ -424,7 +424,7 @@
 
             <!-- Need Distribution Chart -->
             <div class="chart-container">
-                <div class="chart-title">🎯 Tracts by Need Level</div>
+                <div class="chart-title">Need Level Breakdown</div>
                 <div class="chart-wrapper">
                     <canvas id="need-chart"></canvas>
                 </div>
@@ -432,22 +432,22 @@
 
             <!-- Why Broadband Matters -->
             <div class="impact-panel">
-                <div class="impact-title">⚡ Why Broadband Access Matters</div>
+                <div class="impact-title">Why this matters</div>
                 <div class="impact-stat">
                     <span class="impact-icon">🎓</span>
-                    <span>Students in low-coverage areas lack access to online coursework and digital libraries, widening educational inequity.</span>
+                    <span>Kids in low-coverage areas can't do homework online or use digital learning tools — this hits rural schools especially hard.</span>
                 </div>
                 <div class="impact-stat">
                     <span class="impact-icon">💼</span>
-                    <span>Rural workers without reliable broadband are excluded from remote job opportunities and online business tools.</span>
+                    <span>Remote work and online businesses aren't really an option without reliable internet access.</span>
                 </div>
                 <div class="impact-stat">
                     <span class="impact-icon">🏥</span>
-                    <span>Telehealth services — critical for rural communities far from hospitals — require minimum 25 Mbps to function reliably.</span>
+                    <span>Telehealth is increasingly important for rural communities but needs consistent broadband to work.</span>
                 </div>
                 <div class="impact-stat">
                     <span class="impact-icon">💰</span>
-                    <span>Federal BEAD Program funding (~$42.5B) requires data-driven prioritization. This tool identifies where investment has the greatest impact.</span>
+                    <span>Federal BEAD funding requires documented need to prioritize where money goes — that's what this tool helps show.</span>
                 </div>
             </div>
 
@@ -458,26 +458,26 @@
     <div class="modal-overlay" id="about-modal">
         <div class="modal">
             <div class="modal-header">
-                <h2>ℹ️ About This Tool</h2>
+                <h2>About This Project</h2>
                 <button class="modal-close" onclick="closeAbout()">×</button>
             </div>
             <div class="modal-body">
                 <div class="about-section">
                     <h3>Purpose</h3>
-                    <p>The <strong>Illinois Broadband Gap Analysis Tool</strong> identifies and visualizes broadband service gaps across 3,263 Illinois census tracts by combining ACS internet subscription data with Census demographic indicators. It supports data-driven infrastructure investment decisions for state broadband planners, grant writers, and community advocates.</p>
+                    <p>This tool maps broadband gaps across Illinois using census tract data. I combined ACS internet subscription rates with income and population data to show where access is worst and why. The goal is to help identify priority areas for infrastructure investment.</p>
                 </div>
                 <div class="about-section">
                     <h3>Who Is This For?</h3>
                     <div class="audience-grid">
-                        <div class="audience-card"><strong>Infrastructure Planners</strong>Identify highest-need areas and prioritize capital investment.</div>
-                        <div class="audience-card"><strong>Grant Writers</strong>Generate data for BEAD / USDA ReConnect funding applications.</div>
-                        <div class="audience-card"><strong>Community Advocates</strong>Communicate the digital divide to local officials.</div>
-                        <div class="audience-card"><strong>Researchers</strong>Analyze spatial patterns in digital equity across Illinois.</div>
+                        <div class="audience-card"><strong>State/County Planners</strong>Figure out where to focus broadband expansion efforts.</div>
+                        <div class="audience-card"><strong>Grant Writers</strong>Find data to back up BEAD or USDA ReConnect applications.</div>
+                        <div class="audience-card"><strong>Local Advocates</strong>Show officials where the digital divide is worst in their area.</div>
+                        <div class="audience-card"><strong>Researchers</strong>Look at how broadband gaps relate to income and demographics.</div>
                     </div>
                 </div>
                 <div class="about-section">
-                    <h3>Broadband Need Index Methodology</h3>
-                    <p>Composite index (0–100) combining three normalized components. Higher scores = greater infrastructure investment need.</p>
+                    <h3>How the Need Index Works</h3>
+                    <p>I combined three factors into a single score (0–100). Higher = more need. Each factor is scaled 0–1 first so they're comparable:</p>
                     <div class="formula-grid" style="margin-top:10px;">
                         <div class="formula-row">
                             <span class="formula-pct">40%</span>
@@ -506,7 +506,7 @@
                 </div>
                 <div class="about-section" style="margin-bottom:0;">
                     <h3>Developer</h3>
-                    <p><strong>Ethan Kalchik</strong> | University of Wisconsin–Madison | GEOG 778: Practicum in GIS Development</p>
+                    <p>Built by <strong>Ethan Kalchik</strong> for GEOG 778 at UW–Madison. Still a work in progress — feedback welcome.</p>
                 </div>
             </div>
             <div class="modal-footer">
