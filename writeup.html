@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Mockup & User Testing — Illinois Broadband Gap Analysis Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f7fafc; color: #1a202c; line-height: 1.7; }
+
+        .page {
+            max-width: 820px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .doc-header {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            color: white;
+            padding: 36px 48px;
+        }
+        .doc-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+        .doc-header p  { font-size: 14px; opacity: 0.85; }
+        .doc-meta { margin-top: 16px; font-size: 12px; opacity: 0.7; display: flex; gap: 24px; }
+
+        .doc-body { padding: 40px 48px; }
+
+        h2 {
+            font-size: 18px; font-weight: 700; color: #1a365d;
+            border-bottom: 3px solid #3182ce; padding-bottom: 6px;
+            margin: 36px 0 16px;
+        }
+        h2:first-child { margin-top: 0; }
+
+        h3 { font-size: 14px; font-weight: 700; color: #2c5282; margin: 20px 0 8px; }
+
+        p { font-size: 14px; color: #4a5568; margin-bottom: 12px; }
+
+        .callout {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+            font-size: 13px;
+            color: #2c5282;
+        }
+
+        .persona-card {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 16px 0;
+        }
+        .persona-card .name {
+            font-size: 16px; font-weight: 700; color: #1a365d;
+        }
+        .persona-card .role {
+            font-size: 12px; color: #718096; margin-bottom: 12px;
+        }
+        .persona-card p { font-size: 13px; }
+
+        .persona-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0;
+        }
+        .persona-item { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; }
+        .persona-item strong { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #718096; margin-bottom: 4px; }
+        .persona-item span { font-size: 13px; color: #2d3748; }
+
+        .scenario-text {
+            font-size: 14px; color: #4a5568; line-height: 1.8;
+            border-left: 3px solid #e2e8f0; padding-left: 16px;
+            margin: 12px 0;
+        }
+
+        .feature-list {
+            list-style: none; margin: 12px 0;
+        }
+        .feature-list li {
+            font-size: 13px; color: #4a5568;
+            padding: 8px 12px;
+            background: #f7fafc;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .feature-list li .icon { flex-shrink: 0; font-size: 16px; }
+
+        .task-block {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .task-header {
+            background: #1a365d;
+            color: white;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .task-number {
+            background: #3182ce;
+            border-radius: 50%;
+            width: 22px; height: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .task-body { padding: 14px 16px; }
+        .task-instruction { font-size: 14px; color: #2d3748; margin-bottom: 10px; font-weight: 500; }
+        .task-questions { list-style: none; }
+        .task-questions li {
+            font-size: 13px; color: #4a5568; padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex; gap: 8px;
+        }
+        .task-questions li:last-child { border-bottom: none; }
+        .q-label { color: #3182ce; font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 2px; }
+
+        .url-box {
+            background: #1a365d; color: #90cdf4;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 14px; padding: 12px 20px; border-radius: 8px;
+            margin: 12px 0; word-break: break-all;
+        }
+
+        .step-list { counter-reset: step; list-style: none; margin: 12px 0; }
+        .step-list li {
+            counter-increment: step;
+            display: flex; gap: 12px;
+            padding: 8px 0; font-size: 13px; color: #4a5568;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .step-list li:last-child { border-bottom: none; }
+        .step-list li::before {
+            content: counter(step);
+            background: #3182ce; color: white;
+            min-width: 22px; height: 22px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; flex-shrink: 0;
+        }
+
+        .general-q-list { list-style: none; margin: 12px 0; }
+        .general-q-list li {
+            font-size: 13px; color: #4a5568;
+            padding: 10px 14px;
+            background: #f7fafc;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex; gap: 10px;
+        }
+        .general-q-list li .q-num {
+            background: #ed8936; color: white;
+            font-size: 11px; font-weight: 700;
+            min-width: 20px; height: 20px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 1px;
+        }
+
+        @media print {
+            body { background: white; }
+            .page { box-shadow: none; border-radius: 0; margin: 0; }
+            .doc-header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <div class="doc-header">
+        <h1>Illinois Broadband Gap Analysis Tool</h1>
+        <p>Project Mockup &amp; User Testing Plan — GEOG 778: Practicum in GIS Development</p>
+        <div class="doc-meta">
+            <span>Student: Ethan Kalchik</span>
+            <span>University of Wisconsin–Madison</span>
+            <span>Spring 2025</span>
+        </div>
+    </div>
+
+    <div class="doc-body">
+
+        <!-- ======================== PART 1: PERSONA & SCENARIO ======================== -->
+        <h2>Part 1 — Persona &amp; Scenario of Use</h2>
+
+        <h3>User Persona</h3>
+        <div class="persona-card">
+            <div class="name">Maria Thornton</div>
+            <div class="role">Senior Broadband Policy Coordinator — Illinois Office of Broadband, DCEO</div>
+            <div class="persona-grid">
+                <div class="persona-item">
+                    <strong>Background</strong>
+                    <span>10 years in state economic development and public policy. Master's in Public Administration.</span>
+                </div>
+                <div class="persona-item">
+                    <strong>Technical Comfort</strong>
+                    <span>Comfortable with Google Maps, ArcGIS Online dashboards, and Excel. Not a GIS specialist.</span>
+                </div>
+                <div class="persona-item">
+                    <strong>Primary Goal</strong>
+                    <span>Identify and rank Illinois census tracts for BEAD federal broadband funding applications.</span>
+                </div>
+                <div class="persona-item">
+                    <strong>Pain Points</strong>
+                    <span>Raw FCC coverage data is hard to interpret. Needs a tool that combines equity metrics, not just infrastructure coverage.</span>
+                </div>
+            </div>
+        </div>
+
+        <h3>Scenario of Use</h3>
+        <div class="scenario-text">
+            <p>It is a Tuesday morning, three weeks before the BEAD program application deadline. Maria opens her laptop to a browser bookmark labeled "IL Broadband Tool." She needs to justify prioritizing five counties for infrastructure funding in front of her director and federal partners — and she needs data, not just intuition.</p>
+
+            <p>The tool loads a choropleth map of Illinois, shaded by the Broadband Need Index. The darkest red-orange areas cluster visibly in southern and western Illinois — exactly where Maria has been hearing complaints from county commissioners. She notices Alexander County near Cairo standing out immediately. She clicks "How is this calculated?" and reads the formula: 40% coverage gap, 30% income gap, 30% no-internet rate. This makes sense to her — it reflects both infrastructure deficits and socioeconomic vulnerability. She trusts the score.</p>
+
+            <p>She clicks on a tract in Alexander County. The popup shows: Need Index 74 (High), broadband coverage 61%, median household income $27,800, 22% without any internet subscription. This is exactly the data point she needs for her grant narrative. She switches the layer to "Coverage Percentage" to visually separate the infrastructure gap from the demographic gap — the map shifts, revealing that some tracts in Cook County have better coverage but still show up orange on the Need Index because of low income. The index is doing its job.</p>
+
+            <p>Maria uses the County Filter dropdown to isolate Pulaski County and compare it to Champaign County. She sees immediately in the statewide charts that rural tracts in Pulaski have far lower coverage than university-town Champaign. She screenshots both views and pastes them into her PowerPoint. By 10:00 AM — before her director's meeting — she has a ranked list of five counties with defensible, data-backed justifications. The tool gave her 40 minutes of productive analysis instead of an afternoon of spreadsheet wrestling.</p>
+        </div>
+
+        <div class="callout">
+            <strong>Why this persona matters for design:</strong> Maria is not a GIS expert — she needs the map to communicate immediately without explanation. The Need Index must feel trustworthy and explainable. She will not use the tool for academic exploration; she needs to reach a decision quickly. Every design choice (color scale, popup layout, methodology toggle, charts) is oriented toward helping her communicate need, not just see it.
+        </div>
+
+
+        <!-- ======================== PART 2: MOCKUP SUMMARY ======================== -->
+        <h2>Part 2 — Mockup Summary</h2>
+
+        <p>The mockup for this project is a <strong>working beta prototype</strong> — a fully functional web application that demonstrates the intended look, feel, and core interactions of the final Illinois Broadband Gap Analysis Tool. The prototype is built with Leaflet.js (interactive mapping), Chart.js (data visualization), and vanilla HTML/CSS/JavaScript, requiring no external services or logins to run.</p>
+
+        <h3>How to Access the Prototype</h3>
+        <ol class="step-list">
+            <li>Navigate to the <code>Assignments/Mockup/</code> folder in the project files.</li>
+            <li>Double-click <strong>serve.bat</strong> — a command window will open and start a local web server.</li>
+            <li>Open your browser and go to: <div class="url-box">http://localhost:8001</div></li>
+            <li>The map will load with all 3,263 Illinois census tracts shaded by Broadband Need Index.</li>
+            <li>Keep the command window open while using the tool. Press Ctrl+C to stop the server when done.</li>
+        </ol>
+
+        <h3>What the Prototype Shows</h3>
+        <ul class="feature-list">
+            <li><span class="icon">🗺️</span><span><strong>Interactive Choropleth Map</strong> — Illinois census tracts colored by four data layers: Broadband Need Index, Coverage %, Median Income, and No Internet Access.</span></li>
+            <li><span class="icon">💬</span><span><strong>Click Popups</strong> — Clicking any tract shows a popup with the tract's key stats: need score, coverage rate, income, population, and no-internet rate.</span></li>
+            <li><span class="icon">🔢</span><span><strong>Need Index Methodology Toggle</strong> — A "How is this calculated?" button below the Broadband Need Index layer option expands to show the three weighted components.</span></li>
+            <li><span class="icon">📍</span><span><strong>County Filter</strong> — A dropdown zooms the map to any of Illinois' 102 counties and highlights its tracts.</span></li>
+            <li><span class="icon">📊</span><span><strong>Summary Dashboard</strong> — Right panel shows statewide counts (total tracts, high-need tracts, underserved population, avg. coverage) and a donut chart of tracts by need level.</span></li>
+            <li><span class="icon">⚡</span><span><strong>Context Panel</strong> — "Why Broadband Access Matters" explains the real-world stakes for students, workers, healthcare, and federal funding.</span></li>
+        </ul>
+
+        <h3>What Is Not Yet in This Beta</h3>
+        <p>The bottom of the left panel notes planned features not yet implemented in this prototype: range sliders to filter tracts by coverage threshold, income ceiling, and minimum need score — as well as a CSV data export and print view. These do not affect the core look and feel being tested.</p>
+
+        <h3>What Feedback We Are Looking For</h3>
+        <div class="callout">
+            Peer reviewers should focus on: <strong>(1)</strong> Is the Broadband Need Index intuitively communicated by the color map? <strong>(2)</strong> Does the methodology explanation build trust in the score? <strong>(3)</strong> Is the layout easy to navigate for a non-GIS audience? <strong>(4)</strong> Does the need-level donut chart and "Why Broadband Matters" panel add useful context?
+        </div>
+
+
+        <!-- ======================== PART 3: USER TESTING PLAN ======================== -->
+        <h2>Part 3 — User Testing Plan</h2>
+
+        <p>Please complete the following tasks as if you are a <strong>state broadband policy analyst</strong> trying to identify high-need areas for infrastructure investment. Work through each task and answer the questions that follow. There are no right or wrong answers — your honest reactions are the most useful feedback.</p>
+
+        <h3>Setup (1 minute)</h3>
+        <p>Run serve.bat and open the prototype URL above. Wait for the map to fully load — you will see Illinois colored in shades of green to red. You are now ready to begin.</p>
+
+        <!-- Task 1 -->
+        <div class="task-block">
+            <div class="task-header">
+                <div class="task-number">1</div>
+                First Impressions — Broadband Need Index Map
+            </div>
+            <div class="task-body">
+                <div class="task-instruction">Look at the map without clicking anything for 30 seconds. Do not read any panel text yet.</div>
+                <ul class="task-questions">
+                    <li><span class="q-label">Q1</span> What story does the color map tell you? Describe what geographic pattern you notice in your own words.</li>
+                    <li><span class="q-label">Q2</span> Before reading the legend, what do you assume the red/dark areas represent?</li>
+                    <li><span class="q-label">Q3</span> On a scale of 1–5, how clear is the map's message on first glance? (1 = very unclear, 5 = immediately obvious)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Task 2 -->
+        <div class="task-block">
+            <div class="task-header">
+                <div class="task-number">2</div>
+                Understanding the Need Index
+            </div>
+            <div class="task-body">
+                <div class="task-instruction">In the left panel, find the "Broadband Need Index" layer option. Below it, click the small button labeled "How is this calculated?"</div>
+                <ul class="task-questions">
+                    <li><span class="q-label">Q4</span> Does the formula make sense to you? Which component (coverage gap, income gap, no-internet rate) surprised you most?</li>
+                    <li><span class="q-label">Q5</span> After reading the formula, does your confidence in the score go up, down, or stay the same? Why?</li>
+                    <li><span class="q-label">Q6</span> Is anything about the formula explanation unclear or missing?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Task 3 -->
+        <div class="task-block">
+            <div class="task-header">
+                <div class="task-number">3</div>
+                Exploring an Individual Tract
+            </div>
+            <div class="task-body">
+                <div class="task-instruction">Click on any dark-colored census tract in southern Illinois (below Springfield). Read the popup that appears.</div>
+                <ul class="task-questions">
+                    <li><span class="q-label">Q7</span> Does the popup give you the information you would need to justify this area as a funding priority? What is missing, if anything?</li>
+                    <li><span class="q-label">Q8</span> Is the popup layout easy to read, or does it feel cluttered?</li>
+                    <li><span class="q-label">Q9</span> The need score is shown as a colored badge (red/orange/green). Is this color-coding intuitive?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Task 4 -->
+        <div class="task-block">
+            <div class="task-header">
+                <div class="task-number">4</div>
+                Comparing Map Layers
+            </div>
+            <div class="task-body">
+                <div class="task-instruction">In the left panel, switch the data layer from "Broadband Need Index" to "Coverage Percentage." Then switch to "Median Income." Observe how the map changes.</div>
+                <ul class="task-questions">
+                    <li><span class="q-label">Q10</span> Does switching layers tell a noticeably different geographic story? Can you describe how the patterns change?</li>
+                    <li><span class="q-label">Q11</span> Are the four layer options clearly labeled? Is there any layer name you found confusing?</li>
+                    <li><span class="q-label">Q12</span> Is there a data layer you expected to find that is missing?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Task 5 -->
+        <div class="task-block">
+            <div class="task-header">
+                <div class="task-number">5</div>
+                Filtering by County
+            </div>
+            <div class="task-body">
+                <div class="task-instruction">Use the "County Filter" dropdown in the left panel to select "Alexander." The map should zoom in and highlight only Alexander County's tracts. Then switch back to "All Counties."</div>
+                <ul class="task-questions">
+                    <li><span class="q-label">Q13</span> Did filtering by county behave as you expected? Was the interaction clear?</li>
+                    <li><span class="q-label">Q14</span> After filtering, do the summary stats and charts on the right update? (Note: In this beta, they do not update — they remain statewide. Does that feel like a problem?)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Task 6 -->
+        <div class="task-block">
+            <div class="task-header">
+                <div class="task-number">6</div>
+                Right Panel — Charts &amp; Context
+            </div>
+            <div class="task-body">
+                <div class="task-instruction">Look at the right panel: the four summary stat cards, the bar chart (Coverage by Area Type), the donut chart (Tracts by Need Level), and the "Why Broadband Access Matters" section.</div>
+                <ul class="task-questions">
+                    <li><span class="q-label">Q15</span> Do the charts help you understand the statewide situation, or do they feel redundant with the map?</li>
+                    <li><span class="q-label">Q16</span> Does the "Why Broadband Access Matters" panel add useful context, or does it feel out of place in an analysis tool?</li>
+                    <li><span class="q-label">Q17</span> Which statistic in the summary cards is most useful to you? Which is least useful?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- General Questions -->
+        <h3>General Feedback Questions</h3>
+        <ul class="general-q-list">
+            <li>
+                <span class="q-num">A</span>
+                <span>Who do you think this tool is designed for? Does the interface feel appropriate for that audience?</span>
+            </li>
+            <li>
+                <span class="q-num">B</span>
+                <span>On a scale of 1–5, how easy was the tool to navigate overall? What was the single most confusing moment?</span>
+            </li>
+            <li>
+                <span class="q-num">C</span>
+                <span>If you had to make a funding recommendation to your director right now based only on what this tool shows, could you do it? What additional data or features would help?</span>
+            </li>
+            <li>
+                <span class="q-num">D</span>
+                <span>What is the single most important change you would suggest for the final version?</span>
+            </li>
+            <li>
+                <span class="q-num">E</span>
+                <span>Any other comments, observations, or suggestions?</span>
+            </li>
+        </ul>
+
+        <div class="callout" style="margin-top:24px;">
+            <strong>Thank you for your feedback!</strong> Please post your responses in the Canvas comment section for this assignment. Your input will directly shape the final version of this tool.
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

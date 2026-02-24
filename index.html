@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Illinois Broadband Gap Analysis Tool — Beta Prototype</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-dark: #1a365d;
+            --primary-blue: #2c5282;
+            --primary-light: #3182ce;
+            --accent-orange: #ed8936;
+            --accent-red: #e53e3e;
+            --accent-green: #38a169;
+            --bg-light: #f7fafc;
+            --bg-white: #ffffff;
+            --text-dark: #1a202c;
+            --text-gray: #4a5568;
+            --text-light: #718096;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 100%);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 16px; }
+
+        .logo { display: flex; align-items: center; gap: 10px; }
+
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: var(--accent-orange);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 18px;
+        }
+
+        .logo-text { font-size: 18px; font-weight: 700; }
+        .logo-subtitle { font-size: 11px; opacity: 0.8; font-weight: 400; }
+
+        .beta-badge {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .header-right { display: flex; align-items: center; gap: 12px; }
+
+        .header-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .header-btn:hover { background: rgba(255,255,255,0.25); }
+
+        /* Main Layout */
+        .main-container { display: flex; height: calc(100vh - 60px); }
+
+        /* Left Panel */
+        .left-panel {
+            width: 280px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-light); margin-bottom: 12px;
+        }
+
+        /* Layer Controls */
+        .layer-option {
+            display: flex; align-items: center;
+            padding: 10px 12px; margin-bottom: 6px;
+            border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; border: 2px solid transparent;
+        }
+        .layer-option:hover { background: var(--bg-light); }
+        .layer-option.active { background: #ebf8ff; border-color: var(--primary-light); }
+
+        .layer-radio {
+            width: 16px; height: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%; margin-right: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .layer-option.active .layer-radio { border-color: var(--primary-light); }
+        .layer-option.active .layer-radio::after {
+            content: ''; width: 8px; height: 8px;
+            background: var(--primary-light); border-radius: 50%;
+        }
+        .layer-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+        .layer-info p { font-size: 11px; color: var(--text-light); }
+
+        /* Methodology callout */
+        .methodology-callout {
+            background: #ebf8ff; border: 1px solid #bee3f8;
+            border-radius: 8px; padding: 12px; margin-top: 10px;
+            font-size: 12px; display: none;
+        }
+        .methodology-callout.open { display: block; }
+        .methodology-callout h5 {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.4px; color: var(--primary-blue); margin-bottom: 8px;
+        }
+        .method-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .method-bar { height: 8px; border-radius: 4px; flex-shrink: 0; }
+        .method-label { font-size: 11px; color: var(--text-gray); flex: 1; }
+        .method-weight { font-size: 11px; font-weight: 700; color: var(--primary-dark); width: 30px; text-align: right; }
+
+        .info-toggle {
+            background: none; border: 1px solid var(--primary-light);
+            color: var(--primary-light); font-size: 10px; font-weight: 600;
+            padding: 2px 8px; border-radius: 4px; cursor: pointer;
+            margin-top: 4px; font-family: inherit;
+        }
+        .info-toggle:hover { background: #ebf8ff; }
+
+        /* County Select */
+        .county-select {
+            width: 100%; padding: 10px 12px;
+            border: 1px solid var(--border-color); border-radius: 6px;
+            font-size: 13px; font-family: inherit; background: white; cursor: pointer;
+        }
+        .county-select:focus { outline: none; border-color: var(--primary-light); }
+
+        /* Legend */
+        .legend-gradient {
+            height: 16px; border-radius: 4px;
+            background: linear-gradient(to right, #38a169, #faf089, #ed8936, #e53e3e);
+            margin-bottom: 8px;
+        }
+        .legend-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-light); }
+
+        /* Map */
+        .map-container { flex: 1; position: relative; }
+        #map { width: 100%; height: 100%; }
+
+        /* Right Panel */
+        .right-panel {
+            width: 300px;
+            background: var(--bg-white);
+            border-left: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .summary-stats {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 100%);
+            color: white; padding: 16px;
+        }
+        .summary-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-card { background: rgba(255,255,255,0.15); border-radius: 8px; padding: 12px; text-align: center; }
+        .stat-card-value { font-size: 22px; font-weight: 700; }
+        .stat-card-label { font-size: 10px; opacity: 0.8; margin-top: 4px; }
+
+        .chart-container { padding: 16px; border-bottom: 1px solid var(--border-color); }
+        .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .chart-wrapper { height: 170px; }
+
+        /* Popups */
+        .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
+        .leaflet-popup-content { margin: 0; min-width: 260px; }
+
+        .popup-header { background: var(--primary-dark); color: white; padding: 12px 16px; }
+        .popup-header h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+        .popup-header p { font-size: 11px; opacity: 0.8; }
+        .popup-body { padding: 12px 16px; }
+        .popup-stat { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+        .popup-stat:last-child { border-bottom: none; }
+        .popup-stat-label { font-size: 12px; color: var(--text-gray); }
+        .popup-stat-value { font-size: 13px; font-weight: 600; }
+        .popup-stat-value.high { color: var(--accent-red); }
+        .popup-stat-value.medium { color: var(--accent-orange); }
+        .popup-stat-value.low { color: var(--accent-green); }
+
+        .need-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .need-badge.high { background: #fed7d7; color: var(--accent-red); }
+        .need-badge.medium { background: #feebc8; color: #c05621; }
+        .need-badge.low { background: #c6f6d5; color: #276749; }
+
+        /* Impact panel */
+        .impact-panel {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, #fffaf0, #fff5f5);
+        }
+        .impact-title { font-size: 12px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .impact-stat { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; font-size: 11px; color: var(--text-gray); line-height: 1.4; }
+        .impact-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+        /* About Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 12px; width: 540px; max-height: 80vh; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-header { background: var(--primary-dark); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 16px; font-weight: 600; }
+        .modal-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 6px; font-size: 18px; cursor: pointer; }
+        .modal-body { padding: 20px; max-height: 55vh; overflow-y: auto; }
+        .modal-footer { padding: 16px 20px; background: var(--bg-light); display: flex; justify-content: flex-end; }
+        .modal-btn { padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .modal-btn.primary { background: var(--accent-green); border: none; color: white; }
+
+        .about-section { margin-bottom: 16px; }
+        .about-section h3 { font-size: 13px; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; padding-bottom: 4px; border-bottom: 2px solid var(--border-color); }
+        .about-section p { font-size: 13px; color: var(--text-gray); line-height: 1.6; }
+
+        .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+        .audience-card { background: var(--bg-light); border-radius: 6px; padding: 8px 10px; font-size: 12px; color: var(--text-gray); }
+        .audience-card strong { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: var(--primary-blue); margin-bottom: 3px; }
+
+        .formula-grid { display: grid; gap: 6px; margin-top: 8px; }
+        .formula-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--bg-light); border-radius: 6px; font-size: 12px; }
+        .formula-pct { font-weight: 700; color: var(--primary-blue); width: 30px; }
+        .formula-bar-wrap { flex: 1; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
+        .formula-bar-fill { height: 100%; border-radius: 3px; }
+        .formula-text { font-size: 12px; color: var(--text-gray); width: 160px; }
+        .data-badge { display: inline-block; background: #e8f4f8; color: var(--primary-blue); font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-right: 4px; }
+
+        /* Loading */
+        .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; z-index: 500; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top-color: var(--primary-light); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">IL</div>
+                <div>
+                    <div class="logo-text">Illinois Broadband Gap Analysis</div>
+                    <div class="logo-subtitle">Rural Broadband Access Gap Analysis Tool</div>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="header-btn" onclick="showAbout()">ℹ️ About</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Panel -->
+        <aside class="left-panel">
+
+            <!-- Data Layer Toggle -->
+            <div class="panel-section">
+                <div class="section-title">Data Layer</div>
+
+                <div class="layer-option active" data-layer="need_index" onclick="setLayer('need_index')">
+                    <div class="layer-radio"></div>
+                    <div class="layer-info">
+                        <h4>Broadband Need Index</h4>
+                        <p>Composite score (0–100)</p>
+                    </div>
+                </div>
+                <div style="padding: 0 4px 4px;">
+                    <button class="info-toggle" onclick="toggleMethodology(event)">How is this calculated?</button>
+                    <div class="methodology-callout" id="methodology-callout">
+                        <h5>Need Index Formula</h5>
+                        <div class="method-row">
+                            <div class="method-bar" style="width:40px;background:#3182ce;"></div>
+                            <span class="method-label">Broadband coverage gap</span>
+                            <span class="method-weight">40%</span>
+                        </div>
+                        <div class="method-row">
+                            <div class="method-bar" style="width:30px;background:#ed8936;"></div>
+                            <span class="method-label">Median income gap</span>
+                            <span class="method-weight">30%</span>
+                        </div>
+                        <div class="method-row">
+                            <div class="method-bar" style="width:30px;background:#e53e3e;"></div>
+                            <span class="method-label">No internet rate</span>
+                            <span class="method-weight">30%</span>
+                        </div>
+                        <p style="color:#4a5568;font-size:10px;margin-top:6px;">All components normalized 0–1 before weighting. Higher scores = greater investment need. Source: ACS 5-Year 2024.</p>
+                    </div>
+                </div>
+
+                <div class="layer-option" data-layer="coverage" onclick="setLayer('coverage')">
+                    <div class="layer-radio"></div>
+                    <div class="layer-info">
+                        <h4>Coverage Percentage</h4>
+                        <p>% with broadband subscription</p>
+                    </div>
+                </div>
+
+                <div class="layer-option" data-layer="income" onclick="setLayer('income')">
+                    <div class="layer-radio"></div>
+                    <div class="layer-info">
+                        <h4>Median Income</h4>
+                        <p>Household income by tract</p>
+                    </div>
+                </div>
+
+                <div class="layer-option" data-layer="no_internet" onclick="setLayer('no_internet')">
+                    <div class="layer-radio"></div>
+                    <div class="layer-info">
+                        <h4>No Internet Access</h4>
+                        <p>% without any subscription</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- County Filter -->
+            <div class="panel-section">
+                <div class="section-title">County Filter</div>
+                <select class="county-select" id="county-select" onchange="filterByCounty()">
+                    <option value="">All Counties</option>
+                </select>
+            </div>
+
+            <!-- Legend -->
+            <div class="panel-section">
+                <div class="section-title" id="legend-title">Legend: Broadband Need Index</div>
+                <div class="legend-gradient" id="legend-gradient"></div>
+                <div class="legend-labels" id="legend-labels">
+                    <span>0 (Low)</span>
+                    <span>50</span>
+                    <span>100 (High)</span>
+                </div>
+            </div>
+
+            <!-- Placeholder note for peer reviewers -->
+            <div class="panel-section" style="background:#fffbeb;">
+                <div class="section-title" style="color:#b7791f;">Planned Features</div>
+                <p style="font-size:11px;color:#744210;line-height:1.6;">
+                    The final version will include range sliders to filter tracts by minimum coverage, maximum income, and minimum need score. CSV export and print view are also planned.
+                </p>
+            </div>
+
+        </aside>
+
+        <!-- Map -->
+        <main class="map-container">
+            <div id="map"></div>
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <div>Loading data...</div>
+            </div>
+        </main>
+
+        <!-- Right Panel -->
+        <aside class="right-panel">
+
+            <!-- Summary Stats -->
+            <div class="summary-stats">
+                <div class="summary-title">Statewide Summary</div>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-tracts">--</div>
+                        <div class="stat-card-label">Census Tracts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-high-need">--</div>
+                        <div class="stat-card-label">High Need Tracts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-underserved">--</div>
+                        <div class="stat-card-label">Underserved Pop.</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-coverage">--</div>
+                        <div class="stat-card-label">Avg. Coverage</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Need Distribution Chart -->
+            <div class="chart-container">
+                <div class="chart-title">🎯 Tracts by Need Level</div>
+                <div class="chart-wrapper">
+                    <canvas id="need-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Why Broadband Matters -->
+            <div class="impact-panel">
+                <div class="impact-title">⚡ Why Broadband Access Matters</div>
+                <div class="impact-stat">
+                    <span class="impact-icon">🎓</span>
+                    <span>Students in low-coverage areas lack access to online coursework and digital libraries, widening educational inequity.</span>
+                </div>
+                <div class="impact-stat">
+                    <span class="impact-icon">💼</span>
+                    <span>Rural workers without reliable broadband are excluded from remote job opportunities and online business tools.</span>
+                </div>
+                <div class="impact-stat">
+                    <span class="impact-icon">🏥</span>
+                    <span>Telehealth services — critical for rural communities far from hospitals — require minimum 25 Mbps to function reliably.</span>
+                </div>
+                <div class="impact-stat">
+                    <span class="impact-icon">💰</span>
+                    <span>Federal BEAD Program funding (~$42.5B) requires data-driven prioritization. This tool identifies where investment has the greatest impact.</span>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal-overlay" id="about-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>ℹ️ About This Tool</h2>
+                <button class="modal-close" onclick="closeAbout()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="about-section">
+                    <h3>Purpose</h3>
+                    <p>The <strong>Illinois Broadband Gap Analysis Tool</strong> identifies and visualizes broadband service gaps across 3,263 Illinois census tracts by combining ACS internet subscription data with Census demographic indicators. It supports data-driven infrastructure investment decisions for state broadband planners, grant writers, and community advocates.</p>
+                </div>
+                <div class="about-section">
+                    <h3>Who Is This For?</h3>
+                    <div class="audience-grid">
+                        <div class="audience-card"><strong>Infrastructure Planners</strong>Identify highest-need areas and prioritize capital investment.</div>
+                        <div class="audience-card"><strong>Grant Writers</strong>Generate data for BEAD / USDA ReConnect funding applications.</div>
+                        <div class="audience-card"><strong>Community Advocates</strong>Communicate the digital divide to local officials.</div>
+                        <div class="audience-card"><strong>Researchers</strong>Analyze spatial patterns in digital equity across Illinois.</div>
+                    </div>
+                </div>
+                <div class="about-section">
+                    <h3>Broadband Need Index Methodology</h3>
+                    <p>Composite index (0–100) combining three normalized components. Higher scores = greater infrastructure investment need.</p>
+                    <div class="formula-grid" style="margin-top:10px;">
+                        <div class="formula-row">
+                            <span class="formula-pct">40%</span>
+                            <div class="formula-bar-wrap"><div class="formula-bar-fill" style="width:40%;background:#3182ce;"></div></div>
+                            <span class="formula-text">Broadband coverage gap (100% minus broadband rate)</span>
+                        </div>
+                        <div class="formula-row">
+                            <span class="formula-pct">30%</span>
+                            <div class="formula-bar-wrap"><div class="formula-bar-fill" style="width:30%;background:#ed8936;"></div></div>
+                            <span class="formula-text">Income gap (normalized over $20k–$120k range)</span>
+                        </div>
+                        <div class="formula-row">
+                            <span class="formula-pct">30%</span>
+                            <div class="formula-bar-wrap"><div class="formula-bar-fill" style="width:30%;background:#e53e3e;"></div></div>
+                            <span class="formula-text">No internet rate (% households without any internet)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-section">
+                    <h3>Data Sources</h3>
+                    <p>
+                        <span class="data-badge">ACS</span> American Community Survey 5-Year 2024 — internet subscriptions, income, population<br>
+                        <span class="data-badge">FCC</span> Broadband Data Collection — county-level coverage (January 2025)<br>
+                        <span class="data-badge">Census</span> TIGER/Line 2023 — Illinois census tract boundaries
+                    </p>
+                </div>
+                <div class="about-section" style="margin-bottom:0;">
+                    <h3>Developer</h3>
+                    <p><strong>Ethan Kalchik</strong> | University of Wisconsin–Madison | GEOG 778: Practicum in GIS Development</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" onclick="closeAbout()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        let map, geojsonLayer, geojsonData, summaryStats;
+        let currentLayer = 'need_index';
+        let needChart;
+
+        const colorScales = {
+            need_index: {
+                colors: ['#38a169','#9ae6b4','#faf089','#f6ad55','#ed8936','#e53e3e'],
+                breaks: [0,20,40,60,80,100],
+                labels: ['0 (Low)','50','100 (High)'],
+                gradient: 'linear-gradient(to right, #38a169, #faf089, #ed8936, #e53e3e)'
+            },
+            coverage: {
+                colors: ['#e53e3e','#ed8936','#faf089','#9ae6b4','#38a169'],
+                breaks: [0,25,50,75,100],
+                labels: ['0%','50%','100%'],
+                gradient: 'linear-gradient(to right, #e53e3e, #faf089, #38a169)'
+            },
+            income: {
+                colors: ['#e53e3e','#ed8936','#faf089','#9ae6b4','#38a169'],
+                breaks: [20000,40000,60000,80000,100000],
+                labels: ['$20k','$60k','$100k+'],
+                gradient: 'linear-gradient(to right, #e53e3e, #faf089, #38a169)'
+            },
+            no_internet: {
+                colors: ['#38a169','#9ae6b4','#faf089','#f6ad55','#ed8936','#e53e3e'],
+                breaks: [0,10,20,30,40,50],
+                labels: ['0%','25%','50%+'],
+                gradient: 'linear-gradient(to right, #38a169, #faf089, #e53e3e)'
+            }
+        };
+
+        function initMap() {
+            map = L.map('map').setView([40.0, -89.0], 6);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                subdomains: 'abcd', maxZoom: 19
+            }).addTo(map);
+        }
+
+        function getColor(value, layer) {
+            const scale = colorScales[layer];
+            for (let i = scale.breaks.length - 1; i >= 0; i--) {
+                if (value >= scale.breaks[i]) return scale.colors[Math.min(i, scale.colors.length - 1)];
+            }
+            return scale.colors[0];
+        }
+
+        function getValue(properties) {
+            switch (currentLayer) {
+                case 'need_index':  return properties.need_index;
+                case 'coverage':    return properties.coverage_pct;
+                case 'income':      return properties.median_income;
+                case 'no_internet': return properties.no_internet_pct;
+                default:            return properties.need_index;
+            }
+        }
+
+        function style(feature) {
+            return {
+                fillColor: getColor(getValue(feature.properties), currentLayer),
+                weight: 1, opacity: 1, color: '#4a5568', fillOpacity: 0.7
+            };
+        }
+
+        function createPopup(p) {
+            const needClass = p.need_index >= 60 ? 'high' : p.need_index >= 40 ? 'medium' : 'low';
+            const covClass  = p.coverage_pct < 50 ? 'high' : p.coverage_pct < 75 ? 'medium' : 'low';
+            return `
+                <div class="popup-header">
+                    <h3>${p.county} County</h3>
+                    <p>Tract ${p.tract_id}</p>
+                </div>
+                <div class="popup-body">
+                    <div class="popup-stat">
+                        <span class="popup-stat-label">Need Index</span>
+                        <span class="need-badge ${needClass}">${p.need_index}</span>
+                    </div>
+                    <div class="popup-stat">
+                        <span class="popup-stat-label">Coverage</span>
+                        <span class="popup-stat-value ${covClass}">${p.coverage_pct}%</span>
+                    </div>
+                    <div class="popup-stat">
+                        <span class="popup-stat-label">Median Income</span>
+                        <span class="popup-stat-value">$${p.median_income.toLocaleString()}</span>
+                    </div>
+                    <div class="popup-stat">
+                        <span class="popup-stat-label">Population</span>
+                        <span class="popup-stat-value">${p.population.toLocaleString()}</span>
+                    </div>
+                    <div class="popup-stat">
+                        <span class="popup-stat-label">No Internet</span>
+                        <span class="popup-stat-value">${p.no_internet_pct}%</span>
+                    </div>
+                    <div class="popup-stat">
+                        <span class="popup-stat-label">Area Type</span>
+                        <span class="popup-stat-value">${p.area_type}</span>
+                    </div>
+                </div>`;
+        }
+
+        async function loadData() {
+            try {
+                const geoRes   = await fetch('data/illinois_tracts.geojson');
+                geojsonData    = await geoRes.json();
+                const statsRes = await fetch('data/summary_stats.json');
+                summaryStats   = await statsRes.json();
+
+                document.getElementById('loading').style.display = 'none';
+                addGeoJSONLayer();
+                updateStats();
+                populateCountySelect();
+                initCharts();
+            } catch (err) {
+                console.error('Data load error:', err);
+                document.getElementById('loading').innerHTML =
+                    '<div style="color:#e53e3e;padding:20px;text-align:center;">Error loading data.<br>Make sure serve.bat is running from the GEOG 778 root folder.</div>';
+            }
+        }
+
+        function addGeoJSONLayer() {
+            if (geojsonLayer) map.removeLayer(geojsonLayer);
+            geojsonLayer = L.geoJSON(geojsonData, {
+                style: style,
+                onEachFeature: function(feature, layer) {
+                    layer.bindPopup(createPopup(feature.properties));
+                    layer.on({
+                        mouseover: e => e.target.setStyle({ weight: 3, color: '#1a365d', fillOpacity: 0.9 }),
+                        mouseout:  e => geojsonLayer.resetStyle(e.target)
+                    });
+                }
+            }).addTo(map);
+            map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+        }
+
+        function setLayer(layer) {
+            currentLayer = layer;
+            document.querySelectorAll('.layer-option').forEach(el => el.classList.remove('active'));
+            document.querySelector(`[data-layer="${layer}"]`).classList.add('active');
+            updateLegend();
+            if (geojsonLayer) geojsonLayer.setStyle(style);
+        }
+
+        function updateLegend() {
+            const scale = colorScales[currentLayer];
+            const titles = {
+                need_index: 'Legend: Broadband Need Index',
+                coverage:   'Legend: Coverage Percentage',
+                income:     'Legend: Median Income',
+                no_internet:'Legend: No Internet Access'
+            };
+            document.getElementById('legend-title').textContent = titles[currentLayer];
+            document.getElementById('legend-gradient').style.background = scale.gradient;
+            document.getElementById('legend-labels').innerHTML = scale.labels.map(l => `<span>${l}</span>`).join('');
+        }
+
+        function filterByCounty() {
+            const county = document.getElementById('county-select').value;
+            if (!geojsonLayer) return;
+            geojsonLayer.eachLayer(layer => {
+                const visible = county === '' || layer.feature.properties.county === county;
+                layer.setStyle({ fillOpacity: visible ? 0.7 : 0.1, opacity: visible ? 1 : 0.3 });
+            });
+            if (county) {
+                const feats = geojsonData.features.filter(f => f.properties.county === county);
+                if (feats.length) map.fitBounds(L.geoJSON({ type:'FeatureCollection', features: feats }).getBounds(), { padding: [50,50] });
+            } else {
+                map.fitBounds(geojsonLayer.getBounds(), { padding: [20,20] });
+            }
+        }
+
+        function populateCountySelect() {
+            const counties = [...new Set(geojsonData.features.map(f => f.properties.county))].sort();
+            const select = document.getElementById('county-select');
+            counties.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.textContent = c;
+                select.appendChild(opt);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('stat-tracts').textContent     = summaryStats.total_tracts.toLocaleString();
+            document.getElementById('stat-high-need').textContent  = summaryStats.high_need_tracts.toLocaleString();
+            document.getElementById('stat-underserved').textContent= (summaryStats.underserved_population/1e6).toFixed(1)+'M';
+            document.getElementById('stat-coverage').textContent   = summaryStats.avg_coverage+'%';
+        }
+
+        function initCharts() {
+            const needCtx = document.getElementById('need-chart').getContext('2d');
+            needChart = new Chart(needCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['High Need','Medium Need','Low Need','Adequate'],
+                    datasets: [{ data: [summaryStats.high_need_tracts, summaryStats.medium_need_tracts,
+                                        summaryStats.low_need_tracts, summaryStats.adequate_tracts],
+                        backgroundColor: ['#e53e3e','#ed8936','#faf089','#38a169']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8, font: { size: 11 } } } }
+                }
+            });
+        }
+
+        function showAbout()  { document.getElementById('about-modal').classList.add('active'); }
+        function closeAbout() { document.getElementById('about-modal').classList.remove('active'); }
+
+        function toggleMethodology(e) {
+            e.stopPropagation();
+            const panel = document.getElementById('methodology-callout');
+            const isOpen = panel.classList.toggle('open');
+            e.target.textContent = isOpen ? 'Hide methodology' : 'How is this calculated?';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            loadData();
+        });
+    </script>
+</body>
+</html>
